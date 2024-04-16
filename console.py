@@ -142,6 +142,8 @@ class HBNBCommand(cmd.Cmd):
             new_instance = HBNBCommand.classes.get(className)(**args_dict)
             storage.new(new_instance)
             storage.save()
+            print(new_instance.id)
+            return
         else:
             print("class name is not supported")
 
