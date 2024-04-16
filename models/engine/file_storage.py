@@ -71,4 +71,5 @@ class FileStorage:
                 """
 
         except FileNotFoundError:
-            print("FileStorage: FileNotFoundError")
+            pass
+            # print("FileStorage: FileNotFoundError")
