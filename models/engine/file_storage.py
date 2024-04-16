@@ -79,6 +79,7 @@ class FileStorage:
             # print("FileStorage: FileNotFoundError")
 
     def delete(self, obj=None):
+        """delete obj from __objects"""
         if obj is None:
             return None
         del self.__objects[type(obj).__name__ + "." + obj.id]
