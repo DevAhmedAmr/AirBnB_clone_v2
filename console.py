@@ -11,6 +11,7 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+from models import storage
 
 
 class HBNBCommand(cmd.Cmd):
@@ -63,12 +64,12 @@ class HBNBCommand(cmd.Cmd):
             _cls = pline[: pline.find(".")]
 
             # isolate and validate <command>
-            _cmd = pline[pline.find(".") + 1 : pline.find("(")]
+            _cmd = pline[pline.find(".") + 1: pline.find("(")]
             if _cmd not in HBNBCommand.dot_cmds:
                 raise Exception
 
             # if parantheses contain arguments, parse them
-            pline = pline[pline.find("(") + 1 : pline.find(")")]
+            pline = pline[pline.find("(") + 1: pline.find(")")]
             if pline:
                 # partition args: (<id>, [<delim>], [<*args>])
                 pline = pline.partition(", ")  # pline convert to tuple
@@ -125,45 +126,24 @@ class HBNBCommand(cmd.Cmd):
         """Overrides the emptyline method of CMD"""
         pass
 
-    def do_create(self, args):
-        """Create an object of any class"""
-        """print(args)"""
-        # print('create')
-        Sargs = args.split()
-        """print(Sargs)
-        print(Sargs[0])"""
+    def do_create(self, arg: str):
+        """Creates a new instance of a class"""
+        args_dict = dict()
+        if arg is None or len(arg) < 1:
+            print("Usage create <Class name> <param 1> <param 2> <param 3>...")
+        args = arg.replace("\"", "").split(" ")
+        className = args[0]
+        for item in args:
+            if "=" in item:
+                key, value = item.split("=")
+                args_dict[key] = value.replace("_", " ")
 
-        if not args:
-            print("** class name missing **")
-            return
-        elif Sargs[0] not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
-        DictArgs = {}
-        # print(Sargs[1].split("=")[1].split('"'))
-        for i in range(1, len(Sargs)):
-            pair = Sargs[i]
-            key, value = pair.split("=")
-
-            if '"' in value:
-                # print(value)
-                # print(len(value))
-                DictArgs[key] = " ".join(value.split('"')[1].split("_"))
-            else:
-                DictArgs[key] = value
-
-        class_atributes = DictArgs if len(args) > 1 else {}
-        new_instance = HBNBCommand.classes[Sargs[0]](**class_atributes)
-        """ print(
-            f"do create {models.storage.all()['State.a64667fa-782b-4f47-8853-f47be4c961ec'].id}",
-            type(
-                models.storage.all()[
-                    "State.a64667fa-782b-4f47-8853-f47be4c961ec"
-                ].created_at,
-            ),
-        )"""
-        models.storage.save()
-        print(new_instance.id)
+        if HBNBCommand.classes.get(className) is not None:
+            new_instance = HBNBCommand.classes.get(className)(**args_dict)
+            storage.new(new_instance)
+            storage.save()
+        else:
+            print("class name is not supported")
 
     def help_create(self):
         """Help information for the create method"""
@@ -314,7 +294,7 @@ class HBNBCommand(cmd.Cmd):
             if args and args[0] == '"':  # check for quoted arg
                 second_quote = args.find('"', 1)
                 att_name = args[1:second_quote]
-                args = args[second_quote + 1 :]
+                args = args[second_quote + 1:]
 
             args = args.partition(" ")
 
@@ -323,7 +303,7 @@ class HBNBCommand(cmd.Cmd):
                 att_name = args[0]
             # check for quoted val arg
             if args[2] and args[2][0] == '"':
-                att_val = args[2][1 : args[2].find('"', 1)]
+                att_val = args[2][1: args[2].find('"', 1)]
 
             # if att_val was not quoted arg
             if not att_val and args[2]:
